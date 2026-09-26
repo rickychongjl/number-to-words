@@ -1,0 +1,34 @@
+﻿@model ConvertViewModel
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Number to Words</title>
+        <style>
+                body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+                input, button { font-size: 1rem; padding: .5rem; }
+                input { width: 100%; box-sizing: border-box; margin: .5rem 0; }
+                .result { font-weight: bold; }
+                .error { color: #b00020; }
+        </style>
+    </head>
+    <body>
+        <h1>Number to Words</h1>
+
+        <form asp-action="Index" method="post">
+            <label asp-for="Number">Enter an amount</label>
+            <input asp-for="Number" type="text" inputmode="decimal" placeholder="e.g. 123.45" autocomplete="off">
+            <button type="submit">Convert</button>
+        </form>
+
+        @if (Model.Words is not null)
+        {
+            <p class="result">@Model.Words</p>
+        }
+        @if (Model.Error is not null)
+        {
+            <p class="error" role="alert">@Model.Error</p>
+        }
+    </body>
+</html>

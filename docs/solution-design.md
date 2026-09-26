@@ -19,11 +19,9 @@ Australia uses British convention, and short scale.
 4. Cap on sextillion at the moment, additional scaling would need to update the config of scaling terminologies
 5. Decimals will be rounded up to two decimal places
 
-## Development style:
-TDD
-
 ## Strategy:
-> Still need to check step 4 onwards, and look 
+> Still need to check step 4 onwards, and look
+
 ### Mapping list
 
 `Scales = [null], [THOUSAND], [MILLION], [BILLION]`
@@ -60,3 +58,12 @@ TDD
         - If number < 20, just index from `OnesToTeens` no need to mod, and return
             - else divide by 10 and round down to get first word (mapped from `Tys` list) + "-", mod 10 to get the last word (mapping to `OnesToTeens` map)
 8. determine if cents are more than 1, append "s" to cent, then append word to the output
+
+## Development and architecture:
+TDD - Logic of constructing the words from numbers is important and is split into
+    - grouping numbers
+    - construction of words in each grouping
+    - conjunction within and between each group
+so i wanted to solidify the logic before code is written
+
+Architecture - Minimal API for 1 get and post endpoint for now. Don't need controller mapping and static file

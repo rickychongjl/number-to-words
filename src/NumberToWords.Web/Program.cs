@@ -1,6 +1,10 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+using NumberToWords.Core.Services;
 
-app.MapGet("/", () => "Hello World!");
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<NumberToWordsConverter>();
+
+var app = builder.Build();
+app.MapDefaultControllerRoute();
 
 app.Run();
