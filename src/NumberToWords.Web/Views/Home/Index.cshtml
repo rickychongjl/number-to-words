@@ -26,9 +26,15 @@
         {
             <p class="result">@Model.Words</p>
         }
-        @if (Model.Error is not null)
+        @if (Model.Errors.Count > 0)
         {
-            <p class="error" role="alert">@Model.Error</p>
+            <h4 class="error">Invalid input.</h4>
+            <ul class="error" role="alert">
+                @foreach (var error in Model.Errors)
+                {
+                    <li class="error" role="alert">@error</li>
+                }
+            </ul>
         }
     </body>
 </html>

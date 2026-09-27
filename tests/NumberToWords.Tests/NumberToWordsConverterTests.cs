@@ -9,26 +9,26 @@ namespace NumberToWords.Tests
 
         //Invalid input tests
         [Theory]
-        [InlineData(null, "Invalid input. Please enter a valid number.")]
-        [InlineData("abc", "Invalid input. Please ensure only numerical values, ',' and '.' in the input.")]
-        [InlineData("@#$%^", "Invalid input. Please ensure only numerical values, ',' and '.' in the input.")]
-        [InlineData("", "Invalid input. Please enter a valid number.")]
-        [InlineData("    ", "Invalid input. Please enter a valid number.")]
-        [InlineData("1.2.3", "Invalid input. Please ensure input only has at most 1 decimal point.")]
-        [InlineData("1.2,3", "Invalid input. Please ensure no commas are used after the decimal point.")]
-        [InlineData("+5", "Invalid input. Please ensure number does not include any symbols.")]
-        [InlineData("$5", "Invalid input. Please ensure only numerical values, ',' and '.' in the input.")]
-        [InlineData("-1", "Invalid input. Please ensure number does not include any symbols.")]
-        [InlineData("-0.01", "Invalid input. Please ensure number does not include any symbols.")]
-        [InlineData(".", "Invalid input. Please enter digits after the decimal point.")]
-        [InlineData("5.", "Invalid input. Please enter digits after the decimal point.")]
-        [InlineData("10,00", "Invalid input. Please ensure commas fall on every 3rd digit of the input.")]
-        [InlineData("100,,000,", "Invalid input. Please ensure commas fall on every 3rd digit of the input.")]
+        [InlineData(null, "Please enter a valid number.")]
+        [InlineData("abc", "Please ensure only numerical values, ',' and '.' in the input.")]
+        [InlineData("@#$%^", "Please ensure only numerical values, ',' and '.' in the input.")]
+        [InlineData("", "Please enter a valid number.")]
+        [InlineData("    ", "Please enter a valid number.")]
+        [InlineData("1.2.3", "Please ensure input only has at most 1 decimal point.")]
+        [InlineData("1.2,3", "Please ensure no commas are used after the decimal point.")]
+        [InlineData("+5", "Please ensure number does not include any symbols.")]
+        [InlineData("$5", "Please ensure only numerical values, ',' and '.' in the input.")]
+        [InlineData("-1", "Please ensure number does not include any symbols.")]
+        [InlineData("-0.01", "Please ensure number does not include any symbols.")]
+        [InlineData(".", "Please enter digits after the decimal point.")]
+        [InlineData("5.", "Please enter digits after the decimal point.")]
+        [InlineData("10,00", "Please ensure commas fall on every 3rd digit of the input.")]
+        [InlineData("100,,000,", "Please ensure commas fall on every 3rd digit of the input.")]
         public void Convert_InvalidInput_ReturnsValidationErrors(string input, string expectedErrors)
         {
             var result = _converter.Convert(input);
             Assert.False(result.IsSuccess);
-            Assert.Equal(expectedErrors, result.Error);
+            Assert.Contains(expectedErrors, result.Errors);
         }
 
         //Rounding tests
@@ -50,20 +50,28 @@ namespace NumberToWords.Tests
             Assert.Equal(expectedOutput, result.Words);
         }
 
+        //Multiple errors in input, all returned
+        [Fact]
+        public void Convert_InputWithMultipleProblems_ReturnsAllErrors()
+        {
+            var result = _converter.Convert("-+#abc1,0.1,1.5");
+            Assert.Equal(5, result.Errors.Count);
+        }
+
         //Exceeding sextillion test
         [Fact]
         public void Convert_InputExceedsSextillion_ReturnsValidationErrors()
         {
             //Arrange
             var input = "999999999999999999999999.995";
-            var errorMessage = $"Invalid input. Please enter number does not exceed {Scale.Scales.Length * 3} digits.";
+            var errorMessage = $"Please ensure number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
 
             //Act
             var result = _converter.Convert(input);
 
             //Assert
             Assert.False(result.IsSuccess);
-            Assert.Contains(errorMessage, result.Error);
+            Assert.Contains(errorMessage, result.Errors);
         }
 
         //Exceeding sextillion test but with input at 29 characters which decimal.TryParse cannot handle accurately when rounding.
@@ -73,14 +81,14 @@ namespace NumberToWords.Tests
             //Arrange
             /*Fail*/
             var input = "999,999,999,999,999,999,999,999.99599";
-            var expectedValidationError = $"Invalid input. Please enter number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
+            var expectedValidationError = $"Please ensure number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
 
             //Act
             var result = _converter.Convert(input);
 
             //Assert
             Assert.False(result.IsSuccess);
-            Assert.Equal(expectedValidationError, result.Error);
+            Assert.Contains(expectedValidationError, result.Errors);
         }
 
         //Commas tests

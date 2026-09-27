@@ -3,7 +3,7 @@
     public class NumberConvertResult
     {
         public string? Words { get; set; }
-        public string? Error { get; set; }
-        public bool IsSuccess => Error is null;
+        public List<string> Errors { get; set; } = new List<string>();
+        public bool IsSuccess => Errors.Count < 1;
     }
 }

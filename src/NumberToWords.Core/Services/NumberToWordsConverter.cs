@@ -10,66 +10,28 @@ namespace NumberToWords.Core.Services
         {
             var result = new NumberConvertResult();
 
-            if (string.IsNullOrWhiteSpace(number))
+            var cleaned = number?.Trim() ?? "";
+            var parts = cleaned.Split('.');
+            var wholeDigits = parts[0];
+            var fractionDigits = parts.Length > 1 ? parts[1] : "";
+
+            wholeDigits = wholeDigits.Replace(",", "");
+            fractionDigits = fractionDigits.Replace(",", "");
+
+            var validationErrors = Validate(number, wholeDigits, fractionDigits);
+            if (validationErrors.Count > 0)
             {
-                result.Error = "Invalid input. Please enter a valid number.";
-                return result;
-            }
-
-            var cleaned = number.Trim();
-
-            if (cleaned.EndsWith("."))
-            {
-                result.Error = "Invalid input. Please enter digits after the decimal point.";
-                return result;
-            }
-
-            if (!HasAtMostOneDecimalPoint(cleaned))
-            {
-                result.Error = "Invalid input. Please ensure input only has at most 1 decimal point.";
-                return result;
-            }
-
-            if (!AreCommasValidInWholeNumber(cleaned))
-            {
-                result.Error = "Invalid input. Please ensure commas fall on every 3rd digit of the input.";
-                return result;
-            }
-
-            if (!CommasExistsAfterDecimal(cleaned))
-            {
-                result.Error = "Invalid input. Please ensure no commas are used after the decimal point.";
-                return result;
-            }
-
-            cleaned = cleaned.Replace(",", string.Empty);
-
-            if (cleaned.StartsWith("+") || cleaned.StartsWith("-"))
-            {
-                result.Error = "Invalid input. Please ensure number does not include any symbols.";
-                return result;
-            }
-
-            if (!ContainsOnlyAllowedCharacters(cleaned))
-            {
-                result.Error = "Invalid input. Please ensure only numerical values, ',' and '.' in the input.";
-                return result;
-            }
-
-            var wholeDigits = cleaned.Split('.')[0];
-            var fractionDigits = cleaned.Contains('.') ? cleaned.Split('.')[1] : string.Empty;
-            if (ExceedsMax(wholeDigits, fractionDigits, Scale.Scales.Length * 3))
-            {
-                result.Error = $"Invalid input. Please enter number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
+                result.Errors = validationErrors;
                 return result;
             }
 
             var trimmedFraction = fractionDigits.Length > 3 ? fractionDigits.Substring(0, 3) : fractionDigits;
             var toParse = $"{wholeDigits}.{trimmedFraction}";
+            
             var parseResult = decimal.TryParse(toParse, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal parsedNumber);
             if (!parseResult)
             {
-                result.Error = "Unable to parse the input, please reach out to a system administrator.";
+                result.Errors.Add("Unable to parse the input, please reach out to a system administrator.");
                 return result;
             }
 
@@ -90,6 +52,60 @@ namespace NumberToWords.Core.Services
             };
 
             return result;
+        }
+
+        private List<string> Validate(string number, string wholeDigits, string fractionDigits)
+        {
+            var validationResults = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(number))
+            {
+                validationResults.Add("Please enter a valid number.");
+                return validationResults;
+            }
+
+            var cleaned = number.Trim();
+
+            if (cleaned.EndsWith("."))
+            {
+                validationResults.Add("Please enter digits after the decimal point.");
+            }
+
+            if (!HasAtMostOneDecimalPoint(cleaned))
+            {
+                validationResults.Add("Please ensure input only has at most 1 decimal point.");
+            }
+
+            if (!AreCommasValidInWholeNumber(cleaned))
+            {
+                validationResults.Add("Please ensure commas fall on every 3rd digit of the input.");
+            }
+
+            if (!CommasExistsAfterDecimal(cleaned))
+            {
+                validationResults.Add("Please ensure no commas are used after the decimal point.");
+            }
+
+            cleaned = cleaned.Replace(",", string.Empty);
+
+            if (cleaned.StartsWith("+") || cleaned.StartsWith("-"))
+            {
+                validationResults.Add("Please ensure number does not include any symbols.");
+            }
+
+            if (!ContainsOnlyAllowedCharacters(cleaned))
+            {
+                validationResults.Add("Please ensure only numerical values, ',' and '.' in the input.");
+                return validationResults;
+            }
+
+            if (ExceedsMax(wholeDigits, fractionDigits, Scale.Scales.Length * 3))
+            {
+                validationResults.Add($"Please ensure number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.");
+                return validationResults;
+            }
+
+            return validationResults;
         }
 
         private bool ContainsOnlyAllowedCharacters(string input)
@@ -150,7 +166,7 @@ namespace NumberToWords.Core.Services
             {
                 var group = groups[i];
                 var scaleTerm = Scale.Scales[i];
-                decimal x = decimal.MaxValue;
+                
                 if (group > 0 && group < 100)
                 {
                     if (i == 0 && groups.Count != 1)

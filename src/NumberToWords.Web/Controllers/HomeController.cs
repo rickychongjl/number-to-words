@@ -18,7 +18,7 @@ public class HomeController(NumberToWordsConverter converter) : Controller
         if (result.IsSuccess)
             model.Words = result.Words;
         else
-            model.Error = result.Error;
+            model.Errors = result.Errors;
 
         return View(model);
     }
