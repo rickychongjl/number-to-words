@@ -27,16 +27,21 @@ Upon having the site up, you should see the home page, and there will be a text 
 Put in any number
 - `123.45` and it will return `ONE HUNDRED AND TWENTY-THREE DOLLARS AND FORTY-FIVE CENTS`
 
+> ❗Amounts are rounded to 2 decimal places, half up (`0.005 -> ONE CENT`)
+
 There are certain validation rules that the input must adhere to, and upon submitting any invalid input, the app will return you the validation errors accordingly. Read the validation rules [here](#validation-rules)
 
 ### Validation rules
 Below input types are rejected
-1. Null values
-3. More than 1 decimal points
-4. Incorrect comma placement before decimal point, commas can only be placed after every third digit from right to left excluding decimal point.
-5. Commas included after decimal points
-6. Input contains non-numerical values, and symbols/special characters excluding commas, and dots.
-7. Input exceeds a sextillion.
+1. Empty or whitespace values
+2. Input with positive (+) or negative (-) signs
+3. Input with a decimal point that has no digits after it
+    - For eg: `5.`
+4. More than 1 decimal points
+5. Incorrect comma placement before decimal point, commas can only be placed after every third digit from right to left excluding decimal point.
+6. Commas included after decimal points
+7. Input contains non-numerical values, and symbols/special characters excluding commas, and dots.
+8. Input of 1 septillion (1,000,000,000,000,000,000,000,000) or more, after rounding to 2 decimal places.
 
 ### Project structure
 ```
@@ -57,7 +62,7 @@ Below input types are rejected
 ```
 
 ### Pre-requisites
-To run or test this locally, you need to ensure `.NET 10 SDK` and `Git` is installed.
+To run or test this locally, you need to ensure `.NET 10 SDK` and `Git` are installed.
 
 ### To run this locally
 If this is your first time running this, ensure you have cloned repo on your local.
@@ -82,21 +87,21 @@ You can now access the app using `http://localhost:5027`
 From the repo root, run
 ```
 dotnet publish src/NumberToWords.Web -c Release -o ./publish
-cd /publish
+cd publish
 ```
 You should see a working executable `NumberToWords.Web.exe`.
 
-You can run the app directly by running the executable, or you can host it in any ASP.NET Core host, like Azure App Service, which is what I am using.
+You can run the app directly by running the executable and it listens on `http://localhost:5000`, or you can host it in any ASP.NET Core host, like Azure App Service, which is what I am using.
 
-CI/CD has been configured for this app, every push to `main` branch triggers Github Action Workflow, which builds and deploys to an Azure App Service.
+CI/CD has been configured for this app, every push to `main` branch triggers Github Action Workflow, which builds, runs the unit tests, and deploys to an Azure App Service.
 
-The YML can be see [here](/.github/workflows/main_number-to-words.yml)
+The YML can be seen [here](/.github/workflows/main_number-to-words.yml)
 
 ### To run the unit tests locally
 
 Ensure you have cloned the repo, if not look into the previous step on how to clone the repo
 
-From the project root
+From the repo root
 ```
 dotnet test
 ```

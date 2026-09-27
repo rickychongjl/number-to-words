@@ -27,7 +27,7 @@ namespace NumberToWords.Core.Services
 
             var trimmedFraction = fractionDigits.Length > 3 ? fractionDigits.Substring(0, 3) : fractionDigits;
             var toParse = $"{wholeDigits}.{trimmedFraction}";
-            
+
             var parseResult = decimal.TryParse(toParse, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal parsedNumber);
             if (!parseResult)
             {
@@ -45,7 +45,7 @@ namespace NumberToWords.Core.Services
 
             result.Words = (wholeNumberWords, fractionalPartWords) switch
             {
-                ("", "") =>  "ZERO DOLLARS",
+                ("", "") => "ZERO DOLLARS",
                 ("", _) => $"{fractionalPartWords}",
                 (_, "") => $"{wholeNumberWords}",
                 _ => $"{wholeNumberWords} AND {fractionalPartWords}"
@@ -78,7 +78,7 @@ namespace NumberToWords.Core.Services
 
             if (!AreCommasValidInWholeNumber(cleaned))
             {
-                validationResults.Add("Please ensure commas are used after every 3rd digit of the input from the left to right.");
+                validationResults.Add("Please ensure commas are used after every 3rd digit of the input from the right to left.");
             }
 
             if (!CommasExistsAfterDecimal(cleaned))
@@ -166,7 +166,7 @@ namespace NumberToWords.Core.Services
             {
                 var group = groups[i];
                 var scaleTerm = Scale.Scales[i];
-                
+
                 if (group > 0 && group < 100)
                 {
                     if (i == 0 && groups.Count != 1)

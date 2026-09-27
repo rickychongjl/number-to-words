@@ -22,8 +22,8 @@ namespace NumberToWords.Tests
         [InlineData("-0.01", "Please ensure number does not include any symbols.")]
         [InlineData(".", "Please enter digits after the decimal point.")]
         [InlineData("5.", "Please enter digits after the decimal point.")]
-        [InlineData("10,00", "Please ensure commas are used after every 3rd digit of the input from the left to right.")]
-        [InlineData("100,,000,", "Please ensure commas are used after every 3rd digit of the input from the left to right.")]
+        [InlineData("10,00", "Please ensure commas are used after every 3rd digit of the input from the right to left.")]
+        [InlineData("100,,000,", "Please ensure commas are used after every 3rd digit of the input from the right to left.")]
         public void Convert_InvalidInput_ReturnsValidationErrors(string input, string expectedErrors)
         {
             var result = _converter.Convert(input);
@@ -79,7 +79,6 @@ namespace NumberToWords.Tests
         public void Convert_InputWithDecimalsExceeding_ExceedsMax_ReturnsError()
         {
             //Arrange
-            /*Fail*/
             var input = "999,999,999,999,999,999,999,999.99599";
             var expectedValidationError = $"Please ensure number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
 
@@ -186,7 +185,7 @@ namespace NumberToWords.Tests
         [InlineData(".355", "THIRTY-SIX CENTS")]
         [InlineData("0.99", "NINETY-NINE CENTS")]
         [InlineData("0.11", "ELEVEN CENTS")]
-        public void Convert_InputWithJustCents_ReturnsCorrectOutput(string input, string expectedOutput)
+        public void Convert_InputWithCents_ReturnsCorrectOutput(string input, string expectedOutput)
         {
             var result = _converter.Convert(input);
             Assert.True(result.IsSuccess);

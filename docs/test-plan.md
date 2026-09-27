@@ -1,58 +1,107 @@
-Test plan for number to words solution
-Solution design is `/docs/solution-design.md`
+## Test plan for number to words solution
+Solution design is [here](/docs/solution-design.md)
 
-## Main areas to test for
+## Scope
 1. ✅ Invalid cases are rejected with clear reasons
 2. ✅ Aggregation of validation errors where possible to reduce the round trips needed to get the right validation errors per input.
-2. ✅ Pluralisation
-3. ✅ Dashes between number's words
-4. ✅ Input does not exceed max limit (sextillion)
-5. ✅ Round ups
-6. ✅ Cents are dsiplayed correctly with or without dollar amounts
-7. ✅ Commas
-7. ✅ Edge cases
-8. ✅ General operation
+3. ✅ Pluralisation
+4. ✅ Dashes between number's words
+5. ✅ Input does not exceed max limit (septillion)
+6. ✅ Round ups
+7. ✅ Cents are dsiplayed correctly with or without dollar amounts
+8. ✅ Commas
+9. ✅ Edge cases
+10. ✅ General operation
     1. Scaling term applies correctly
     2. Conjunction word "AND" is applied correctly
     3. General extraction of numbers to words via mapping lists
 
-### In depth of what to test
-<hr>
+## Approach
+Unit tests are in [tests\NumberToWords.Tests\NumberToWordsConverterTests.cs](/tests/NumberToWords.Tests/NumberToWordsConverterTests.cs)
 
-#### Invalid cases
-1. Null value
-2. Input with symbols/special characters
-3. More than 1 decimal points
-4. Incorrect comma placing on the whole number part, commas can only be placed after every third digit from right to left.
-5. Commas exist after decimal points
-6. Input contains only numerical values, commas, and dots.
-7. Input does not exceed sextillion.
+## How to run the tests
+Tests can be run locally via `dotnet test` at the repo root level, and also run as part of the CI process. Failed test would block deployment
 
-#### Pluralisation
+80 passed unit tests at the moment which covers all of the areas mentioned in Scope
+
+## What each scenario covers, and where sits in unit tests
+
+#### 1. Invalid cases
+1. Empty or whitespace values
+2. Input with positive (+) or negative (-) signs
+3. Input with a decimal point that has no digits after it
+    - For eg: `5.`
+4. More than 1 decimal point
+5. Incorrect comma placement before the decimal point. Commas can only be placed after every third digit, from right to left.
+6. Commas included after the decimal point
+7. Input containing non-numerical values or symbols/special characters, other than commas and dots
+8. Input of 1 septillion (1,000,000,000,000,000,000,000,000) or more, after rounding to 2 decimal places
+
+Covered by 
+- `Convert_InvalidInput_ReturnsValidationErrors`
+
+#### 2. Aggregation of validation errors where possible to reduce the round trips needed to get the right validation errors per input.
+1. Inputs that contains multiple validation errors should return the list of validation errors in one go
+
+Covered by
+- `Convert_InputWithMultipleProblems_ReturnsAllErrors`
+
+#### 3. Pluralisation
 1. Anything other than 1, we return pluralise (cents or dollars)
 
-#### Edge cases
-1. 0 returns "ZERO DOLLARS"
-2. 0.00 returns "ZERO DOLLARS"
-3. trailing zeros are trimmed - 007 returns "SEVEN DOLLARS"
-4. testing out large numbers billion onwards returns correct word
+Covered by
+- `Convert_Input_ReturnsCorrectPluralisation`
 
-#### Dashes
+#### 4. Dashes between number's words
 1. Dashes are only added to words less than a hundred
 
-### Commas
-1. If a comma is used in the input, then the input must adhere to the rule of commas (comma after every 3rd digit from the left to right)
+Covered by
+- `Convert_Input_ReturnsCorrectDashes`
 
-#### Cents
-1. .X format is allowed as long as we have digit(s) after dot. For eg: .1 returns "ONE CENT"
+#### 5. Input does not exceed max limit (septillion)
+1. Input does not reach septillion which is what comes after sextillion
 
-#### Roundings
-1. Rounding of only up to 2 decimal points will be done on all inputs
-2. We need to ensure number does not exceed maximum (sextillion) after rounding
+Covered by
+- `Convert_InputExceedsSextillion_ReturnsValidationErrors`
+- `Convert_InputWithDecimalsExceeding_ExceedsMax_ReturnsError`
+- `Convert_InputWith50Digits_ExceedsMax_ReturnsError`
 
-#### General Operation
-1. Conjunction word "AND" is only ever added for 3 scenarios
-    - To join cents and dollars
-    - Within each group in the dollars, if the value has remainders modding by 100
-    - When concatenating each groups together, and the last group is less than 100.
-2. Numbers to words are expressed correctly
+#### 6. Round ups
+1. Input with decimals are half way rounded up to 2 decimals
+
+Covered by
+- `Convert_InputWithDecimal_ReturnsCorrectlyRoundedOutput`
+
+#### 7. Cents
+1. Inputs with cents are displayed correctly
+2. Covers a combination of dollars + cents, just cents, just dollars
+
+Covered by
+- `Convert_InputWithCents_ReturnsCorrectOutput`
+
+#### 8. Commas
+1. Inputs with valid commas are parsed correctly
+2. Inputs with invalid commas are rejected 
+
+Covered by
+- Happy path - `Convert_InputWithCommas_ReturnsCorrectOutput`
+- Validation paths - `Convert_InvalidInput_ReturnsValidationErrors` + `Convert_InputWithMultipleProblems_ReturnsAllErrors`
+
+#### 9. Edge cases
+1. Edge cases like 
+- lower/upper bound values
+- leading zeros
+- large number where decimals round up and does not exceeds max
+
+Covered by
+- `Convert_EdgeCasesInput_ReturnsCorrectOutput`
+
+#### 10. General operation
+
+1. Scaling term applies correctly
+2. Conjunction word "AND" is applied correctly
+    - Joining dollars and cents, within a group, and before a final group under 100
+3. General extraction of numbers to words via mapping lists
+
+Covered by
+- `Convert_Input_ReturnsCorrectOutput`
