@@ -1,45 +1,58 @@
 Test plan for number to words solution
 Solution design is `/docs/solution-design.md`
 
-Invalid cases
-1. input negative number, returns "Invalid number, no negatives allowed"
-2. input non-numeric, returns "Invalid input, only input numerical values (decimals allowed and will be automatically rounded up to 2 decimal places)"
-3. input numbers and commas not falling on the third digit, returns "Invalid input, commas must fall on every third digit from the right side of the input"
+## Main areas to test for
+1. ✅ Invalid cases are rejected with clear reasons
+2. ✅ Aggregation of validation errors where possible to reduce the round trips needed to get the right validation errors per input.
+2. ✅ Pluralisation
+3. ✅ Dashes between number's words
+4. ✅ Input does not exceed max limit (sextillion)
+5. ✅ Round ups
+6. ✅ Cents are dsiplayed correctly with or without dollar amounts
+7. ✅ Commas
+7. ✅ Edge cases
+8. ✅ General operation
+    1. Scaling term applies correctly
+    2. Conjunction word "AND" is applied correctly
+    3. General extraction of numbers to words via mapping lists
 
-Edge cases
-1. input 0 returns zero dollar(s)
-2. input 0.1 returns ten cent(s)
-3. input .1 returns ten cent(s)
-4. input 0.01 returns one cent(s)
-5. input .01 returns one cent(s)
-6. input 0.99 returns ninety nine cent(s)
-7. input 0.994 returns ninety nine cent(s)
-8. input 0.995 returns one dollar(s)
-9. input 1 0 returns ten dollar(s)
-10. input 1 0 . 0 1 returns ten dollar(s) and one cent(s)
+### In depth of what to test
+<hr>
 
-Test cases
-input 1 returns one dollar
-input 10 returns ten dollars
-input 15 returns fifteen dollars
-input 25 returns twenty five dollars
-input 101 returns one hundred and one dollars
-input 110 returns one hundred and ten dollars
-input 12345 returns twelve thousand three hundred and forty five dollars
-input 123,456,789 returns one hundred and twenty three million four hundred and fifty six thousand seven hundred and eighty nine dollars
-input 123,456,009 returns one hundred and twenty three million four hundred and fifty six thousand and nine dollars
-input 123.01 returns one hundred and twenty three dollars and one cent
-input 123.15 returns one hundred and twenty three dollars and fifteen cents
-input 123.20 returns one hundred and twenty three dollars and twenty cents
-input 123.35 returns one hundred and twenty three dollars and thirty five cents
-input 123,456,789.001 returns one hundred and twenty three million four hundred and fifty six thousand seven hundred and eighty nine dollars
-input 123,456,789.10 returns one hundred and twenty three million four hundred and fifty six thousand seven hundred and eighty nine dollars and ten cents
-input 9,000 returns nine thousand dollars
+#### Invalid cases
+1. Null value
+2. Input with symbols/special characters
+3. More than 1 decimal points
+4. Incorrect comma placing on the whole number part, commas can only be placed after every third digit from right to left.
+5. Commas exist after decimal points
+6. Input contains only numerical values, commas, and dots.
+7. Input does not exceed sextillion.
 
-2. input 12345 returns twelve thousand three hundred and forty five dollars
-3. input 40 return forty dollars
-4. input 543 return five hundred and forty three dollars
-5. input 45 return forty five dollars
-6. input 9 returns nine dollars
-7. input 19 returns nineteen dollars
-8. 
+#### Pluralisation
+1. Anything other than 1, we return pluralise (cents or dollars)
+
+#### Edge cases
+1. 0 returns "ZERO DOLLARS"
+2. 0.00 returns "ZERO DOLLARS"
+3. trailing zeros are trimmed - 007 returns "SEVEN DOLLARS"
+4. testing out large numbers billion onwards returns correct word
+
+#### Dashes
+1. Dashes are only added to words less than a hundred
+
+### Commas
+1. If a comma is used in the input, then the input must adhere to the rule of commas (comma after every 3rd digit from the left to right)
+
+#### Cents
+1. .X format is allowed as long as we have digit(s) after dot. For eg: .1 returns "ONE CENT"
+
+#### Roundings
+1. Rounding of only up to 2 decimal points will be done on all inputs
+2. We need to ensure number does not exceed maximum (sextillion) after rounding
+
+#### General Operation
+1. Conjunction word "AND" is only ever added for 3 scenarios
+    - To join cents and dollars
+    - Within each group in the dollars, if the value has remainders modding by 100
+    - When concatenating each groups together, and the last group is less than 100.
+2. Numbers to words are expressed correctly

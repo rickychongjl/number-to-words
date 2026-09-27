@@ -78,7 +78,7 @@ namespace NumberToWords.Core.Services
 
             if (!AreCommasValidInWholeNumber(cleaned))
             {
-                validationResults.Add("Please ensure commas fall on every 3rd digit of the input.");
+                validationResults.Add("Please ensure commas are used after every 3rd digit of the input from the left to right.");
             }
 
             if (!CommasExistsAfterDecimal(cleaned))

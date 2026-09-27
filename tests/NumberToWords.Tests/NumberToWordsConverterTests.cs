@@ -22,8 +22,8 @@ namespace NumberToWords.Tests
         [InlineData("-0.01", "Please ensure number does not include any symbols.")]
         [InlineData(".", "Please enter digits after the decimal point.")]
         [InlineData("5.", "Please enter digits after the decimal point.")]
-        [InlineData("10,00", "Please ensure commas fall on every 3rd digit of the input.")]
-        [InlineData("100,,000,", "Please ensure commas fall on every 3rd digit of the input.")]
+        [InlineData("10,00", "Please ensure commas are used after every 3rd digit of the input from the left to right.")]
+        [InlineData("100,,000,", "Please ensure commas are used after every 3rd digit of the input from the left to right.")]
         public void Convert_InvalidInput_ReturnsValidationErrors(string input, string expectedErrors)
         {
             var result = _converter.Convert(input);
@@ -91,6 +91,22 @@ namespace NumberToWords.Tests
             Assert.Contains(expectedValidationError, result.Errors);
         }
 
+        //Arbitrary large number that exceeds sextillion test
+        [Fact]
+        public void Convert_InputWith50Digits_ExceedsMax_ReturnsError()
+        {
+            //Arrange
+            var input = "1,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000";
+            var expectedValidationError = $"Please ensure number does not exceed {Scale.Scales.Length * 3} digits. Note that the input is evaluated after a two decimal half round up.";
+
+            //Act
+            var result = _converter.Convert(input);
+
+            //Assert
+            Assert.False(result.IsSuccess);
+            Assert.Contains(expectedValidationError, result.Errors);
+        }
+
         //Commas tests
         [Theory]
         [InlineData("1,000", "ONE THOUSAND DOLLARS")]
@@ -138,6 +154,8 @@ namespace NumberToWords.Tests
         [InlineData("115", "ONE HUNDRED AND FIFTEEN DOLLARS")]
         [InlineData("25", "TWENTY-FIVE DOLLARS")]
         [InlineData("5.00", "FIVE DOLLARS")]
+        [InlineData("19.25", "NINETEEN DOLLARS AND TWENTY-FIVE CENTS")]
+        [InlineData("00.25", "TWENTY-FIVE CENTS")]
         [InlineData("100", "ONE HUNDRED DOLLARS")]
         [InlineData("101", "ONE HUNDRED AND ONE DOLLARS")]
         [InlineData("120", "ONE HUNDRED AND TWENTY DOLLARS")]
